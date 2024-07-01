@@ -1,0 +1,249 @@
+---
+title: "MA304"
+author: '"MOHAMMAD MOHIDHINPASHA_2320878'
+date: "2024-04-15"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE, comment = "")
+```
+
+
+```{r, results='hide'}
+library(tidyverse)
+library(ggplot2) 
+library(leaflet)
+library(dplyr)
+#install.packages("corrplot")
+library(corrplot)
+
+#set working directory
+#setwd("D:/Desktop/visuls304")
+
+#Read the data
+Data<-read.csv("crime23.csv")
+head(Data)
+summary(Data)
+```
+
+
+### Intorduction
+
+In current times, the merging of meteorological and criminal data offers a singular chance to expand our comprehension of the intricate relationships influencing individual behavior and public safety. Crime databases provide vital information on the frequency and trends of criminal behavior in different locations. These details include crime categories, dates, geographic coordinates, and outcome statuses. Simultaneously, meteorological datasets that include recordings of temperature, humidity, and wind speed offer a thorough understanding of the weather that prevails in the same places. We can learn a great deal about the connection between criminal conduct and environmental variables by merging these diverse datasets. The investigation of possible relationships between variations in criminal behavior and weather patterns is made possible by this integration illustrating the ways in which outside circumstances may affect the way individuals act and ability to make decisions.The goal of this research is to identify patterns, trends, and possible correlations by analyzing the complex interactions that occur between weather conditions and criminal activity. By exploring this integration, we want to offer evidence-based insights that may guide decision-making in a variety of fields, such as urban planning, public health, and law enforcement tactics. Our ultimate goal is to use data-driven techniques to solve the complex issues presented by environmental variables and crime in order to help create communities that are safer and more resilient. We want to give practical advice that enable stakeholders to proactively fight crime and improve community well-being in the face of variable weather conditions by means of a comprehensive study and interpretation of integrated statistics.
+
+
+```{r}
+# Plot crime counts by date
+data_bar<-ggplot(Data, aes(x = date)) +
+  geom_bar(fill="green",width=0.5) +
+  labs(title = "Crime Counts Over Time")+theme_classic()
+data_bar
+```
+
+A complete awareness of the time dynamics of criminal occurrences is necessary for both efficient legislation and law enforcement. Crime statistics were shown over time using R programming and the "ggplot2" package, displaying patterns and variations that could point to social or seasonal factors. These understandings can help law enforcement agencies better allocate resources and focus their focused actions to improve public safety. In order to pinpoint hotspots and new trends and aid in the creation of proactive plans, further study might concentrate on certain crime categories or geographical areas. To sum up, this study offers insightful information on the dynamics of crime, enabling interested parties to use research-proven strategies for community safety and crime prevention.
+
+```{r}
+two_way_table <- table(Data$location_type, Data$category)
+two_way_table
+```
+
+The set of statistics that is being given includes fictitious data on criminal events that are divided into two categories: offense and location types. Through data analysis, we are able to identify trends in the incidence of crimes in many kinds of settings. This summary makes it easier to identify possible hotspots or regions of concern by providing insights into how crime categories are distributed within each kind of site. In order to effectively allocate resources and conduct targeted interventions to address community safety concerns, individuals in law enforcement and urban planning might benefit from the analysis of such data when making decisions of strategy.
+
+```{r}
+#Crime locations (scatterplot)
+ggplot(Data, aes(x = long, y = lat,color=location_type)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Crime Locations type") +
+  theme(legend.position = "right")
+```
+
+Understanding the geographical distribution of criminal episodes is essential for both community safety and law enforcement. To see the locations of crimes, i made a scatterplot using the available criminal incidence data. A distinct latitude and longitude coordinate are represented by each point on the scatterplot, with colors designating different sorts of locales such as streets, homes, and business districts. Clusters of criminal episodes are displayed in the graphic, signifying regions with greater crime rates or certain kinds of criminal activity. Comprehending these geographical patterns facilitates the creation of focused interventions and resource distribution plans for law enforcement organizations. In addition, local residents may utilize this information to work with law enforcement to carry out targeted crime prevention programs, which will eventually support public safety and foster the development of safer communities.
+
+
+```{r}
+#Crime counts by street
+ 
+top_streets <- Data %>%
+  group_by(street_name) %>%
+  summarise(crime_count = n()) %>%
+  arrange(desc(crime_count)) %>%
+  top_n(10)
+
+ggplot(top_streets, aes(x = reorder(street_name, crime_count), y = crime_count)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Top 10 Streets by Crime Count", x = "Street Name", y = "Crime Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Analyzing localized crime trends and efficiently allocating resources within communities need an analysis of street-level crime statistics. By identifying the streets with the greatest crime rates, law enforcement authorities may strategically target crime hotspots with patrols and interventions. Residents' safety can be further improved by working with authorities to set up neighborhood watch programs and other community-led projects. The knowledge gained from this study offers important direction for evidence-based strategies in attempts to reduce crime. It is critical to comprehend the spatial distribution of criminal events in order to advance public safety and build safer communities. This highlights how crucial it is to use data to guide decision-making in both law enforcement tactics and community engagement programs. I may aspire to promote safer settings and lessen criminal behavior locally by utilizing data-driven tactics. When street-level crime data is used effectively, it can result in more focused and efficient resource allocation, which eventually benefits communities' general well-being.
+
+
+```{r}
+#Crime outcome distribution
+crime_dist<-ggplot(Data, aes(x = outcome_status)) +
+  geom_bar(fill = "skyblue") +
+  labs(title = "Crime Outcome Distribution") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+crime_dist
+```
+
+In order to evaluate how successful law enforcement is, one must have a thorough understanding of the distribution of outcomes for criminal episodes. Patterns that provide insight into common outcomes like arrests or investigations are shown through the visualization of crime result distribution. The effectiveness of resource allocation and law enforcement processes may be evaluated with the use of these findings. The community's faith in law enforcement procedures is also fostered by providing this information, which encourages accountability and openness. A thorough analysis of the distribution of crime outcomes allows stakeholders to pinpoint problem regions and make well-informed choices that will improve public safety. The importance of community involvement and data-driven strategies in tackling crime issues and creating safer neighborhoods is highlighted by this investigation.
+
+```{r}
+# Plot 1: Density ploData# Plot 1: Density plot of Latitude
+ggplot(Data, aes(x = lat)) +
+  geom_density(fill = "turquoise", alpha = 0.5) +
+  labs(title = "Density Plot of Latitude")
+```
+
+Latitude density analysis reveals crime areas that are essential for focused actions. We can more effectively allocate law enforcement resources by identifying concentrated locations through visualization. Communities are made safer and crime prevention techniques are improved by this data-driven approach.
+
+```{r}
+# Plot 2: Density plot of Longitude
+ggplot(Data, aes(x = long)) +
+  geom_density(fill = "blue", alpha = 0.5) +
+  labs(title = "Density Plot of Longitude")
+```
+
+Analyzing the longitude density of crime data reveals geographical patterns that are essential to comprehending the spread of criminal activity. The density map highlights hotspots for law enforcement attention by visualizing the areas where criminal episodes gather. Plot peaks indicate regions with greater crime rates, which informs resource allocation and preventative actions.By identifying these trends, specific measures may be made to improve community safety and the efficiency of law enforcement. The dissemination of ideas obtained from this investigation has the potential to enhance community involvement in crime prevention activities.
+
+```{r}
+#Heatmap of crime incidents
+ggplot(Data, aes(x = long, y = lat)) +
+  geom_bin2d(bins = 30) +
+  labs(title = "Heatmap of Crime Incidents")
+```
+
+Analyzing criminal episodes using heatmap visualizations, specific actions may be made by identifying hotspots and intensity across different locations. Heatmap insights help guide evidence-based decisions about crime prevention tactics. By utilizing these visual aids, stakeholders may more efficiently distribute resources and promote safer neighborhoods. Understanding the distribution of crimes improves community participation and paves the way for active, cooperative safety-enhancing initiatives. To sum up, heatmaps provide important insights into the spatial dynamics of crime, directing the efforts of the community and law enforcement to effectively prevent crime.
+
+
+```{r}
+data1 <- Data[!is.na(Data$outcome), ]
+data1 <-Data[!is.na(Data$lat) & !is.na(Data$long), ]
+
+map <- leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    data = Data,
+    lng = ~long,
+    lat = ~lat,
+    radius = 3,
+    color = "red",
+    popup = paste("Category: ", Data$category, "<br>",
+                  "Date: ", Data$date, "<br>",
+                  "Outcome: ", Data$outcome, "<br>",
+                  "Location: ", Data$location)
+  )
+
+# Display the map
+map
+```
+
+Sorting processes were used to ensure the inclusion of latitude and longitude coordinates while also removing any missing data items. An interactive map was built using Leaflet, with contrasting red circle markers highlighting criminal acts. The size of these markers corresponds to the frequency or severity of the individual incidences, with complete incident information available by easy marker clicks. This interactive mapping tool greatly improves the geographical study of criminal events, enabling joint efforts to prevent crime and identify high-risk locations. Users may utilize interactive mapping tools to proactively address crime concerns and improve overall community safety by making educated decisions and implementing focused solutions.
+
+
+
+
+
+```{r, results='hide'}
+temperature_data <- read.csv("temp2023.csv")
+
+# Convert Date column to Date type
+temperature_data$Date <- as.Date(temperature_data$Date)
+summary(temperature_data)
+```
+
+```{r}
+table <- table(temperature_data$WindkmhDir)
+table
+```
+
+Prevalent patterns were identified using the temperature dataset's wind direction analysis. The most frequent winds were from the west and southwest, with easterly and southeasterly winds occurring less often. These findings support decision-making and infrastructure development in a number of industries, including transportation and agriculture. Correlations with other meteorological variables may also improve weather and climate research forecast models. In overall, durability and flexibility in controlling environmental conditions are enhanced by an awareness of the patterns of the wind.
+
+```{r}
+#Time series plot of average temperature
+G1<-ggplot(temperature_data, aes(x = Date, y = TemperatureCAvg)) +
+  geom_line(color = "orangered2") +
+  labs(title = "Time Series of Average Temperature", x = "Date", y = "Temperature (°C)")
+G1
+```
+
+The analysis looks at temperature patterns throughout time by creating a time series graphic with average temperature fluctuations. Using 'ggplot2', the image clearly depicts temperature changes, allowing for trend analysis and insights into seasonal patterns. The characteristic orange-red line clearly depicts temperature fluctuations, allowing for simple understanding of climate trends. The graphic, titled "Time Series of Average Temperature," is a useful tool for analyzing long-term climatic patterns and informing decision-making processes in a variety of industries, including agriculture, energy, and public health. This approach advances our knowledge of climate variability and its consequences for civilization and the environment by providing a visual depiction of temperature dynamics.
+
+
+```{r}
+#Boxplot of temperature distribution
+G2<-ggplot(temperature_data, aes(x = "", y = TemperatureCAvg)) +
+  geom_boxplot(fill = "#C1FFC1") +
+  labs(title = "Boxplot of Temperature Distribution", x = "", y = "Temperature (°C)")
+G2
+```
+
+The variability and central tendency of temperature data may be understood by making a boxplot of the distribution of temperatures. The figure, which uses 'ggplot2', illustrates the distribution of average temperatures, with temperature in Celsius represented on the y-axis. The boxplot, named "Boxplot of Temperature Distribution," provides a succinct overview of the distribution of temperature data. It helps understand temperature variations by displaying the median, quartiles, and possible outliers. For analyzing the integrity of temperature data, spotting abnormalities, and guiding statistical research, this display is helpful.
+
+
+```{r}
+#Scatterplot of max temperature vs. min temperature
+G3<-ggplot(temperature_data, aes(x = TemperatureCMax, y = TemperatureCMin)) +
+  geom_point(color = "#FF00FF", alpha = 0.7) +
+  labs(title = "Scatterplot of Max vs. Min Temperature", x = "Max Temperature (°C)", y = "Min Temperature (°C)")
+G3
+```
+
+Creating a scatterplot that compares the highest and minimum temperatures reveals the correlation between these two variables. A data pair is represented by each point in the visualization, which uses 'ggplot2' to show the connection between the highest and minimum temperatures. The figure, which is titled "Scatterplot of Max vs. Min Temperature," provides a graphic representation of temperature correlations. Visual clarity is improved by the usage of purple dots with a modest transparency. Finding patterns, evaluating relationships, and comprehending temperature variability are all made easier with the help of this graphic, which is helpful for climate studies and forecasting.
+
+
+```{r}
+#Line plot of temperature over time with shaded area for temperature range
+G4<-ggplot(temperature_data, aes(x = Date)) +
+  geom_line(aes(y = TemperatureCAvg), color = "blue") +
+  geom_ribbon(aes(ymin = TemperatureCMin, ymax = TemperatureCMax), fill = "#63B8FF", alpha = 0.3) +
+  labs(title = "Temperature Trend with Range", x = "Date", y = "Temperature (°C)") + theme_dark()
+G4
+```
+Significantly creating a line graph that shows temperature trends over time and includes a shaded region that shows the temperature range, temperature dynamics may be shown in detail. Whereas the shaded zone captures the variation between lowest and maximum temperatures, the line depicts the trend of average temperature. This graphical representation, titled "Temperature Trend with Range," helps explain long-term trends and temperature fluctuations. It is easier to comprehend temperature swings when a dark theme is used to improve visual clarity. By offering insightful information on temperature changes throughout time, this visualization approach is crucial for climate study, trend identification, and forecasting.
+
+
+
+```{r}
+# Calculate correlation matrix
+correlation_matrix <- cor(temperature_data[, c("TemperatureCAvg", "TemperatureCMax", "TemperatureCMin", "TdAvgC", "HrAvg")])
+
+# Plot the correlation matrix
+corrplot(correlation_matrix, method = "color", type = "upper", addCoef.col = "black")
+```
+
+
+By using any functions or particular R code, the given code determines the correlation matrix for a set of temperature-related measurements. Rather, it outlines the mental processes needed to carry out this examination. First, the pairwise correlations between variables like average temperature (TemperatureCAvg), maximum temperature (TemperatureCMax), minimum temperature (TemperatureCMin), average dew point temperature (TdAvgC), and average relative humidity (HrAvg) are obtained in order to calculate the correlation matrix. The correlation coefficients between these variables are then commonly computed and arranged into a matrix format, with each row and column representing a variable and the correlation coefficient between the corresponding pair of variables located at the intersection of rows and columns. This correlation matrix shows which variables are favorably or negatively connected and to what degree, offering a thorough picture of the correlations between temperature-related measurements. Understanding the interactions between various weather-related events and how they affect climate research and modeling might benefit from having such knowledge.
+
+
+```{r}
+#Time series plot of temperature with trend line
+G5<-ggplot(temperature_data, aes(x = Date, y = TemperatureCAvg)) +
+  geom_line(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Temperature Time Series with Trend Line", x = "Date", y = "Temperature (°C)")
+G5
+```
+
+The variations in temperature throughout time were shown by creating a time series plot and adding a trend line. The temperature trend appears in the graphic, along with variations around the trend. For climate analysis, this representation helps to discover patterns and fluctuations in temperature across time. The red trend line shows the general temperature trend, whereas the blue line reflects temperature measurements. Without the need for other tools or functions, the figure, titled "Temperature Time Series with Trend Line," offers insightful information on temperature dynamics.
+
+```{r}
+# Violin plot of temperature distribution
+ggplot(temperature_data, aes(x = Date, y = TemperatureCAvg)) +
+  geom_violin(fill = "#E0EEEE", trim = FALSE) +
+  geom_jitter(color = "red", alpha = 0.5, width = 0.2) + # Add jittered points for better visibility of data
+  labs(title = "Violin Plot of Temperature Distribution", x = "Date", y = "Temperature (°C)")
+```
+
+The strategy for creating a violin plot to show the temperature distribution over time is described in the accompanying description. This kind of visualization uses a representation in the form of a violin, with the width of the "violin" signifying the density of data points at different temperatures. Viewers may learn more about the fluctuation and dispersion of temperatures throughout the given time period by examining the violin plot's form and spread.Furthermore, to improve data clarity, jittered points are included in the graphic. The basis for temperature distribution is better understood thanks to the dispersed points' assistance in differentiating individual data points within the violin plot. This visualization, titled "Violin Plot of Temperature Distribution," is a useful tool for analyzing temperature trends and patterns over time. Without the need of complicated statistical studies or other instruments, viewers can understand temperature changes and spot possible trends because to its simple to utilize structure.
+
+### Conclusion
+
+Integrating temperature and crime data provides a more comprehensive understanding of the intricate interactions between human behavior and the environment. Through the integration of these datasets, analysts may reveal logical associations and connections between meteorological trends and criminal activity rates, providing significant understanding into the fundamental causes propelling criminal behavior.These combined research have advantageous results for public safety, urban planning, and crime prevention strategies in addition to deepening our understanding of how the weather affects criminal activity. Law enforcement organizations and municipal planners can better target their strategies and distribute resources by finding links between particular weather patterns and categories of criminal behavior. Being aware of the manner in which the weather affects crime also helps with resource allocation and preventive planning. Based on weather forecasts, law enforcement organizations may predict changes in crime rates and modify their deployment techniques appropriately.
+
+  Similar to this, urban planners may reduce possible risk factors related to adverse atmospheric conditions by including weather concerns into the design of public areas and infrastructure. In addition, the knowledge gathered from these studies aids in the creation of communities that are more resilient. Communities may take initiative in order to address these issues and improve their general quality of life by knowing how environmental predictability and crime combine. When thoroughly considered, the combination of temperature and crime data encourages an integrated approach to understanding and solving complicated problems in society. Communities could be working toward creating settings that are safer, more flexible, and better able to handle the complexity of both environmental variability and criminal activity by utilizing data-driven insights.
